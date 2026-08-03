@@ -25,6 +25,8 @@
     --line: #2E2E2E;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { overflow-x: hidden; }
+  img, svg { max-width: 100%; height: auto; }
   html { scroll-behavior: smooth; }
   body {
     background: var(--ink);
@@ -146,9 +148,10 @@
     font-weight: 400; font-size: 1.12rem; letter-spacing: 0.05em;
     text-transform: uppercase; line-height: 1.75;
   }
-  .group .list span { color: #5f5f5f; padding: 0 0.3rem; }
+  .group .list .sep { color: #5f5f5f; }
   @media (max-width: 640px) {
     .group { grid-template-columns: 1fr; gap: 0.4rem; }
+    .group .list { font-size: 1rem; letter-spacing: 0.03em; line-height: 1.7; }
   }
   .more-note { margin-top: 1.6rem; font-size: 0.9rem; color: var(--quiet); }
 
@@ -290,18 +293,18 @@
     <div class="groups">
       <div class="group">
         <p class="g">Stage</p>
-        <p class="list">Dramatics<span>&middot;</span>Oratory<span>&middot;</span>Spoken Word<span>&middot;</span>Vocal Music<span>&middot;</span>Instrumental Music<span>&middot;</span>Dance</p>
+        <p class="list">Dramatics <span class="sep">&middot;</span> Oratory <span class="sep">&middot;</span> Spoken&nbsp;Word <span class="sep">&middot;</span> Vocal&nbsp;Music <span class="sep">&middot;</span> Instrumental&nbsp;Music <span class="sep">&middot;</span> Dance</p>
       </div>
       <div class="group">
         <p class="g">Page</p>
-        <p class="list">Written Poetry<span>&middot;</span>Short Story<span>&middot;</span>Playwriting<span>&middot;</span>Music Composition</p>
+        <p class="list">Written&nbsp;Poetry <span class="sep">&middot;</span> Short&nbsp;Story <span class="sep">&middot;</span> Playwriting <span class="sep">&middot;</span> Music&nbsp;Composition</p>
       </div>
       <div class="group">
         <p class="g">Studio</p>
-        <p class="list">Filmmaking<span>&middot;</span>Photography<span>&middot;</span>Drawing<span>&middot;</span>Painting<span>&middot;</span>Sculpture</p>
+        <p class="list">Filmmaking <span class="sep">&middot;</span> Photography <span class="sep">&middot;</span> Drawing <span class="sep">&middot;</span> Painting <span class="sep">&middot;</span> Sculpture</p>
       </div>
     </div>
-    <p class="more-note">ACT-SO runs 33 categories nationally. Lafayette leads with the creative and artistic slate; STEM, business, and culinary categories open as student interest and mentors surface &mdash; tell us what you want to compete in.</p>
+    <p class="more-note">Vocal and instrumental music each compete in classical and contemporary; dance in ballet, contemporary, modern, and cultural &mdash; twenty categories in all. ACT-SO runs 33 nationally; STEM, business, and culinary open here as student interest and mentors surface &mdash; tell us what you want to compete in.</p>
   </div>
 </section>
 
