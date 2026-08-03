@@ -3,7 +3,7 @@
 // the email is the record, which keeps a minor's information out of
 // third-party databases entirely.
 
-const DESTINATION = 'josiah@creativereach.art';
+const DESTINATION = 'josiah@actsolafayette.org';
 // checkcalltime.art is the SendGrid-authenticated sending domain today.
 // Swap once actsolafayette.org is authenticated in SendGrid.
 const FROM = { email: 'calls@checkcalltime.art', name: 'ACT-SO Lafayette Sign-ups' };
