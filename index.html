@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACT-SO Lafayette — NAACP Afro-Academic, Cultural, Technological and Scientific Olympics</title>
+<meta name="description" content="ACT-SO Lafayette: the NAACP's yearlong achievement program for high school students. Regional competition Saturday, March 13, 2027 at the Acadiana Center for the Arts. Student and mentor sign-ups open now.">
+<meta property="og:title" content="ACT-SO Lafayette — Where Brilliance Meets Boldness">
+<meta property="og:description" content="The NAACP's Olympics of the mind and the arts comes to Lafayette. Regional competition March 13, 2027.">
+<meta name="theme-color" content="#0B0B0B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ACT-SO Lafayette — built on the NAACP ACT-SO 2026 brand guide:
+     official gold #FCB514 (sampled from the mark), Montserrat (their brand font),
+     Oswald standing in for Gothic Cg No3. Deliberately NOT the Annie Will's Daughter
+     palette: this is ACT-SO's house, hosted in ours. */
+  :root {
+    --ink: #0B0B0B;
+    --gold: #FCB514;
+    --paper: #FFFFFF;
+    --smoke: #E6E6E6;
+    --quiet: #9A9A9A;
+    --line: #2E2E2E;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* ---------- masthead ---------- */
+  .topbar {
+    border-bottom: 1px solid var(--line);
+    padding: 1rem 0;
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(11,11,11,0.94);
+    backdrop-filter: blur(6px);
+  }
+  .topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .topbar img { height: 34px; width: auto; display: block; }
+  .topbar nav { display: flex; gap: 1.6rem; }
+  .topbar nav a {
+    font-weight: 600; font-size: 0.72rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--smoke); text-decoration: none;
+  }
+  .topbar nav a:hover { color: var(--gold); }
+  @media (max-width: 720px) { .topbar nav { display: none; } }
+
+  /* ---------- hero ---------- */
+  .hero { padding: 5rem 0 3.5rem; }
+  .theme {
+    display: flex; align-items: center; gap: 1rem;
+    font-weight: 700; font-size: 0.72rem; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 2.2rem;
+  }
+  .theme::after { content: ""; flex: 1; height: 1px; background: var(--gold); opacity: 0.5; }
+  .hero h1 {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: clamp(2.9rem, 9.5vw, 7rem);
+    line-height: 0.94;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+  .hero h1 em { font-style: normal; color: var(--gold); display: block; }
+  .hero .stand {
+    margin-top: 2rem;
+    max-width: 30rem;
+    font-size: 1.12rem;
+    font-weight: 400;
+    letter-spacing: 0.008em;
+    color: var(--smoke);
+  }
+  .whenwhere {
+    margin-top: 2.6rem;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 1.4rem 0;
+    display: flex; flex-wrap: wrap; gap: 0.5rem 3rem; align-items: baseline;
+  }
+  .whenwhere .d {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 500; font-size: 1.45rem; letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .whenwhere .v {
+    font-weight: 600; font-size: 0.78rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--gold);
+  }
+  .cta-row { margin-top: 2.2rem; display: flex; flex-wrap: wrap; gap: 0.9rem; }
+  .btn {
+    display: inline-block;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 500; font-size: 0.9rem; letter-spacing: 0.14em;
+    text-transform: uppercase; text-decoration: none;
+    padding: 0.9rem 1.9rem;
+  }
+  .btn-gold { background: var(--gold); color: var(--ink); }
+  .btn-gold:hover { background: #ffc43d; }
+  .btn-ghost { border: 1px solid var(--line); color: var(--paper); }
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ---------- sections ---------- */
+  section { padding: 4.5rem 0; border-top: 1px solid var(--line); }
+  .label {
+    font-weight: 700; font-size: 0.7rem; letter-spacing: 0.28em;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 1.8rem;
+  }
+  h2 {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 500;
+    font-size: clamp(1.8rem, 4.4vw, 2.8rem);
+    line-height: 1.08;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+  }
+  .lede {
+    margin-top: 1.4rem;
+    max-width: 44rem;
+    font-size: 1.08rem;
+    color: var(--smoke);
+    letter-spacing: 0.008em;
+  }
+  .lede + .lede { margin-top: 1rem; }
+  .lede b { color: var(--paper); font-weight: 600; }
+
+  /* ---------- categories ---------- */
+  .groups { margin-top: 2.4rem; display: grid; gap: 1.6rem; }
+  .group { display: grid; grid-template-columns: 6.5rem 1fr; gap: 1.4rem; align-items: baseline; }
+  .group .g {
+    font-weight: 700; font-size: 0.7rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--gold);
+  }
+  .group .list {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 400; font-size: 1.12rem; letter-spacing: 0.05em;
+    text-transform: uppercase; line-height: 1.75;
+  }
+  .group .list span { color: #5f5f5f; padding: 0 0.3rem; }
+  @media (max-width: 640px) {
+    .group { grid-template-columns: 1fr; gap: 0.4rem; }
+  }
+  .more-note { margin-top: 1.6rem; font-size: 0.9rem; color: var(--quiet); }
+
+  /* ---------- path ---------- */
+  .path { margin-top: 2.4rem; display: grid; gap: 0; }
+  .rung {
+    display: grid; grid-template-columns: 4.5rem 1fr;
+    gap: 1.6rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--line);
+  }
+  .rung:first-child { border-top: none; }
+  .rung .n {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600; font-size: 2rem; line-height: 1;
+    color: var(--gold);
+  }
+  .rung h3 {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 500; font-size: 1.3rem; text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .rung .when {
+    font-weight: 600; font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--quiet);
+    margin-bottom: 0.3rem;
+  }
+  .rung p { margin-top: 0.4rem; color: var(--smoke); font-size: 1rem; max-width: 40rem; }
+
+  /* ---------- forms ---------- */
+  .form-intro { margin-bottom: 2rem; }
+  form { max-width: 40rem; }
+  .field { margin-top: 1.2rem; }
+  .field label {
+    display: block;
+    font-weight: 700; font-size: 0.68rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 0.45rem;
+  }
+  .field input, .field select, .field textarea {
+    width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    color: var(--paper);
+    background: #161616;
+    border: 1px solid var(--line);
+    padding: 0.75rem 0.9rem;
+    border-radius: 0;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none; border-color: var(--gold);
+  }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+  @media (max-width: 640px) { .field-row { grid-template-columns: 1fr; } }
+  .picks { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1.4rem; margin-top: 0.55rem; }
+  @media (max-width: 640px) { .picks { grid-template-columns: 1fr; } }
+  .picks label {
+    display: flex; align-items: center; gap: 0.55rem;
+    font-size: 0.95rem; font-weight: 400; letter-spacing: 0;
+    text-transform: none; color: var(--paper); margin: 0;
+  }
+  .picks input { width: auto; accent-color: var(--gold); }
+  .hp { position: absolute; left: -9999px; height: 0; overflow: hidden; }
+  button.submit {
+    margin-top: 1.8rem;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 500; font-size: 0.9rem; letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: var(--gold); color: var(--ink);
+    border: none; padding: 0.95rem 2.2rem; cursor: pointer;
+  }
+  button.submit:hover { background: #ffc43d; }
+  button.submit:disabled { opacity: 0.55; cursor: wait; }
+  .status { margin-top: 1.2rem; display: none; font-size: 1rem; }
+  .status.ok { display: block; color: var(--gold); font-weight: 600; }
+  .status.err { display: block; color: #ff8a7a; }
+  .status a { color: inherit; }
+
+  /* ---------- footer ---------- */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 3rem 0 3.5rem;
+    text-align: center;
+  }
+  footer img { height: 46px; width: auto; margin-bottom: 1.6rem; }
+  footer .credit {
+    font-weight: 600; font-size: 0.72rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--quiet);
+    line-height: 1.9;
+  }
+  footer .contact { margin-top: 1.2rem; font-size: 0.95rem; color: var(--smoke); }
+  footer .contact a { color: var(--gold); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <img src="assets/actso-logo.png" alt="ACT-SO, powered by NAACP">
+    <nav>
+      <a href="#about">The Program</a>
+      <a href="#compete">Categories</a>
+      <a href="#path">The Path</a>
+      <a href="#student">Sign Up</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="theme">Where Brilliance Meets Boldness</p>
+    <h1>ACT-SO<br><em>Lafayette</em></h1>
+    <p class="stand">The NAACP&rsquo;s Olympics of the mind and the arts, now competing in Acadiana. Fifty years of Black excellence &mdash; and a stage of our own.</p>
+    <div class="whenwhere">
+      <span class="d">Saturday, March 13, 2027</span>
+      <span class="v">Acadiana Center for the Arts</span>
+    </div>
+    <div class="cta-row">
+      <a class="btn btn-gold" href="#student">Students &amp; Parents</a>
+      <a class="btn btn-ghost" href="#volunteer">Mentors, Judges &amp; Sponsors</a>
+    </div>
+  </div>
+</header>
+
+<section id="about">
+  <div class="wrap">
+    <p class="label">The Program</p>
+    <h2>Train all year.<br>Compete on your own stage.</h2>
+    <p class="lede">The <b>Afro-Academic, Cultural, Technological and Scientific Olympics</b> is the NAACP&rsquo;s yearlong achievement program for high school students &mdash; founded in 1978 on a simple conviction: that young people who excel in a laboratory or on a page deserve the same recognition we give athletes.</p>
+    <p class="lede">Students don&rsquo;t just show up and perform. They spend the school year working with mentors, coaches, and working artists, building a piece or a project to competition standard. In March, they take the stage in Lafayette. Local gold medalists advance to the national competition at the NAACP National Convention, where national gold medalists earn scholarships.</p>
+    <p class="lede">Open to high school students in grades 9&ndash;12 who are U.S. citizens and amateurs in their category. There is a place here for you.</p>
+  </div>
+</section>
+
+<section id="compete">
+  <div class="wrap">
+    <p class="label">Compete In</p>
+    <h2>Twenty categories.<br>Judged by professionals.</h2>
+    <div class="groups">
+      <div class="group">
+        <p class="g">Stage</p>
+        <p class="list">Dramatics<span>&middot;</span>Oratory<span>&middot;</span>Spoken Word<span>&middot;</span>Vocal Music<span>&middot;</span>Instrumental Music<span>&middot;</span>Dance</p>
+      </div>
+      <div class="group">
+        <p class="g">Page</p>
+        <p class="list">Written Poetry<span>&middot;</span>Short Story<span>&middot;</span>Playwriting<span>&middot;</span>Music Composition</p>
+      </div>
+      <div class="group">
+        <p class="g">Studio</p>
+        <p class="list">Filmmaking<span>&middot;</span>Photography<span>&middot;</span>Drawing<span>&middot;</span>Painting<span>&middot;</span>Sculpture</p>
+      </div>
+    </div>
+    <p class="more-note">ACT-SO runs 33 categories nationally. Lafayette leads with the creative and artistic slate; STEM, business, and culinary categories open as student interest and mentors surface &mdash; tell us what you want to compete in.</p>
+  </div>
+</section>
+
+<section id="path">
+  <div class="wrap">
+    <p class="label">The Path</p>
+    <h2>From sign-up to the national stage.</h2>
+    <div class="path">
+      <div class="rung">
+        <p class="n">01</p>
+        <div>
+          <p class="when">Fall 2026</p>
+          <h3>Register &amp; pair with a mentor</h3>
+          <p>Students sign up and are matched with a mentor or coach in their category. Families get a full orientation before any of the work begins.</p>
+        </div>
+      </div>
+      <div class="rung">
+        <p class="n">02</p>
+        <div>
+          <p class="when">Winter</p>
+          <h3>Train through the school year</h3>
+          <p>Workshops and coaching sessions run from late fall into spring: real craft, real feedback, and a piece or project built to compete.</p>
+        </div>
+      </div>
+      <div class="rung">
+        <p class="n">03</p>
+        <div>
+          <p class="when">March 13, 2027</p>
+          <h3>The Lafayette competition</h3>
+          <p>Judged by degreed and working professionals in each category, on ACT-SO&rsquo;s 100-point national standard. Gold, silver, and bronze medals awarded.</p>
+        </div>
+      </div>
+      <div class="rung">
+        <p class="n">04</p>
+        <div>
+          <p class="when">July 2027</p>
+          <h3>Nationals</h3>
+          <p>Local gold medalists represent Lafayette at the national ACT-SO competition, held at the NAACP National Convention. National gold medalists earn scholarships.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="student">
+  <div class="wrap">
+    <p class="label">Student Sign-Up</p>
+    <h2>Put your name in early.</h2>
+    <div class="form-intro">
+      <p class="lede">Official registration follows NAACP rules this fall. Signing up here puts your student on the roster list and gets your family the orientation details first. This goes straight to the program team and nowhere else.</p>
+    </div>
+    <form data-form="student" novalidate>
+      <div class="field-row">
+        <div class="field">
+          <label for="s-name">Student name *</label>
+          <input id="s-name" name="student_name" type="text" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="s-grade">Grade in 2026&ndash;27 *</label>
+          <select id="s-grade" name="grade" required>
+            <option value="">Choose&hellip;</option>
+            <option>9th</option><option>10th</option><option>11th</option><option>12th</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="s-school">School</label>
+        <input id="s-school" name="school" type="text">
+      </div>
+      <div class="field">
+        <label>Categories they&rsquo;re drawn to</label>
+        <div class="picks">
+          <label><input type="checkbox" name="categories" value="Dramatics"> Dramatics</label>
+          <label><input type="checkbox" name="categories" value="Oratory"> Oratory</label>
+          <label><input type="checkbox" name="categories" value="Spoken Word"> Spoken Word</label>
+          <label><input type="checkbox" name="categories" value="Written Poetry"> Written Poetry</label>
+          <label><input type="checkbox" name="categories" value="Short Story"> Short Story</label>
+          <label><input type="checkbox" name="categories" value="Playwriting"> Playwriting</label>
+          <label><input type="checkbox" name="categories" value="Music Composition"> Music Composition</label>
+          <label><input type="checkbox" name="categories" value="Vocal Music"> Vocal Music</label>
+          <label><input type="checkbox" name="categories" value="Instrumental Music"> Instrumental Music</label>
+          <label><input type="checkbox" name="categories" value="Dance"> Dance</label>
+          <label><input type="checkbox" name="categories" value="Filmmaking"> Filmmaking</label>
+          <label><input type="checkbox" name="categories" value="Photography"> Photography</label>
+          <label><input type="checkbox" name="categories" value="Drawing"> Drawing</label>
+          <label><input type="checkbox" name="categories" value="Painting"> Painting</label>
+          <label><input type="checkbox" name="categories" value="Sculpture"> Sculpture</label>
+          <label><input type="checkbox" name="categories" value="STEM / business / culinary"> STEM / business / culinary</label>
+          <label><input type="checkbox" name="categories" value="Not sure yet"> Not sure yet</label>
+        </div>
+      </div>
+      <div class="field">
+        <label for="s-guardian">Parent / guardian name *</label>
+        <input id="s-guardian" name="guardian_name" type="text" required>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="s-gemail">Parent / guardian email *</label>
+          <input id="s-gemail" name="guardian_email" type="email" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="s-gphone">Parent / guardian phone</label>
+          <input id="s-gphone" name="guardian_phone" type="tel" autocomplete="tel">
+        </div>
+      </div>
+      <div class="hp" aria-hidden="true"><label>Leave empty<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+      <button class="submit" type="submit">Sign Up</button>
+      <p class="status" role="status"></p>
+    </form>
+  </div>
+</section>
+
+<section id="volunteer">
+  <div class="wrap">
+    <p class="label">Mentors, Judges &amp; Sponsors</p>
+    <h2>This runs on people who know how to do.</h2>
+    <div class="form-intro">
+      <p class="lede">Every category needs a panel of three judges &mdash; degreed or working professionals in the field. Every student needs a coach. And every line of this program, from workshops to medals to sending our gold medalists to nationals, can carry a name.</p>
+    </div>
+    <form data-form="volunteer" novalidate>
+      <div class="field-row">
+        <div class="field">
+          <label for="v-name">Name *</label>
+          <input id="v-name" name="name" type="text" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="v-role">I want to serve as *</label>
+          <select id="v-role" name="role" required>
+            <option value="">Choose&hellip;</option>
+            <option>Mentor / Coach</option>
+            <option>Judge</option>
+            <option>Committee / day-of volunteer</option>
+            <option>Sponsor</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="v-email">Email *</label>
+          <input id="v-email" name="email" type="email" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="v-phone">Phone</label>
+          <input id="v-phone" name="phone" type="tel" autocomplete="tel">
+        </div>
+      </div>
+      <div class="field">
+        <label for="v-exp">Your field or category</label>
+        <input id="v-exp" name="expertise" type="text" placeholder="e.g. actor, photographer, band director, engineer">
+      </div>
+      <div class="field">
+        <label for="v-note">Anything else</label>
+        <textarea id="v-note" name="note" rows="4"></textarea>
+      </div>
+      <div class="hp" aria-hidden="true"><label>Leave empty<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+      <button class="submit" type="submit">Sign Up</button>
+      <p class="status" role="status"></p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <img src="assets/actso-logo.png" alt="ACT-SO, powered by NAACP">
+    <p class="credit">
+      A program of the NAACP Lafayette Branch 6060&#8209;B<br>
+      Hosted by Annie Will&rsquo;s Daughter Foundation &middot; With support from Creative Reach
+    </p>
+    <p class="contact"><a href="mailto:josiah@creativereach.art">josiah@creativereach.art</a> &middot; (337) 366&#8209;0397</p>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('form[data-form]').forEach(function (form) {
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var status = form.querySelector('.status');
+      var btn = form.querySelector('.submit');
+      status.className = 'status';
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+
+      var data = { form: form.dataset.form };
+      new FormData(form).forEach(function (v, k) {
+        if (k === 'categories') { (data.categories = data.categories || []).push(v); }
+        else { data[k] = v; }
+      });
+
+      btn.disabled = true;
+      try {
+        var r = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (!r.ok) throw new Error('failed');
+        form.querySelectorAll('.field, .field-row, .submit').forEach(function (el) { el.style.display = 'none'; });
+        status.textContent = 'Got it. You’re on the list — we’ll be in touch soon.';
+        status.className = 'status ok';
+      } catch (err) {
+        btn.disabled = false;
+        status.innerHTML = 'Something went wrong on our end. Email us instead: <a href="mailto:josiah@creativereach.art">josiah@creativereach.art</a>';
+        status.className = 'status err';
+      }
+    });
+  });
+</script>
+</body>
+</html>
