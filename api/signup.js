@@ -97,5 +97,54 @@ module.exports = async (req, res) => {
     return;
   }
 
+  // The email above is the record and has already succeeded. Calltime is an
+  // ADDITION to it, never a replacement, so a Calltime outage must not turn a
+  // good submission into an error for the person who filled in the form.
+  // Volunteers only: students stay out of Calltime by design (see header).
+  await relayToCalltime(b);
+
   res.status(200).json({ ok: true });
 };
+
+// The site's role labels are prose; the intake API wants stable keys.
+const INTAKE_ROLES = {
+  'Judge': 'judge',
+  'Mentor / Coach': 'mentor',
+  'Committee / day-of volunteer': 'committee',
+  'Sponsor': 'sponsor',
+};
+
+async function relayToCalltime(b) {
+  if (b.form !== 'volunteer') return;
+
+  const url = process.env.CALLTIME_INTAKE_URL;
+  const secret = process.env.CALLTIME_INTAKE_SECRET;
+  if (!url || !secret) return; // not wired up yet — silently skip, email already sent
+
+  const role = INTAKE_ROLES[cap(b.role, 60)];
+  if (!role) {
+    console.error(`[signup] no Calltime role mapping for "${cap(b.role, 60)}" — emailed only`);
+    return;
+  }
+
+  try {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-intake-secret': secret },
+      body: JSON.stringify({
+        name: cap(b.name, 120),
+        email: cap(b.email, 200),
+        phone: cap(b.phone, 40),
+        role,
+        expertise: cap(b.expertise, 300),
+        note: cap(b.note, 2000),
+      }),
+    });
+    if (!r.ok) {
+      const detail = await r.text().catch(() => '');
+      console.error(`[signup] Calltime intake refused a ${role}: ${r.status} ${detail.slice(0, 200)}`);
+    }
+  } catch (err) {
+    console.error(`[signup] Calltime intake unreachable for a ${role}: ${err.message}`);
+  }
+}

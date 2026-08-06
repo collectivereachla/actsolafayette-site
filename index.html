@@ -506,7 +506,9 @@
       <div class="field-row">
         <div class="field">
           <label for="s-name">Student name *</label>
-          <input id="s-name" name="student_name" type="text" autocomplete="name" required>
+          <!-- A parent fills this form, so the student's name is NOT the filler's name.
+               autocomplete="name" here made browsers autofill the parent into it. -->
+          <input id="s-name" name="student_name" type="text" autocomplete="off" required>
         </div>
         <div class="field">
           <label for="s-grade">Grade in 2026&ndash;27 *</label>
@@ -544,7 +546,7 @@
       </div>
       <div class="field">
         <label for="s-guardian">Parent / guardian name *</label>
-        <input id="s-guardian" name="guardian_name" type="text" required>
+        <input id="s-guardian" name="guardian_name" type="text" autocomplete="name" required>
       </div>
       <div class="field-row">
         <div class="field">
@@ -624,6 +626,31 @@
 </footer>
 
 <script>
+  // If the relay is down, we still refuse to lose what someone typed.
+  // These labels turn a submission back into a readable email.
+  var FIELD_LABELS = {
+    student_name: 'Student', grade: 'Grade', school: 'School',
+    categories: 'Categories', guardian_name: 'Parent / guardian',
+    guardian_email: 'Email', guardian_phone: 'Phone',
+    name: 'Name', role: 'Serving as', email: 'Email', phone: 'Phone',
+    expertise: 'Field / category', note: 'Anything else'
+  };
+
+  function fallbackMailto(data) {
+    var subject = data.form === 'student'
+      ? 'ACT-SO student sign-up — ' + (data.student_name || '')
+      : 'ACT-SO volunteer — ' + (data.name || '');
+    var lines = [];
+    Object.keys(FIELD_LABELS).forEach(function (k) {
+      var v = data[k];
+      if (Array.isArray(v)) { v = v.join(', '); }
+      if (v) { lines.push(FIELD_LABELS[k] + ': ' + v); }
+    });
+    lines.push('', '(Sent from the sign-up form, which could not reach us.)');
+    return 'mailto:josiah@actsolafayette.org?subject=' + encodeURIComponent(subject) +
+      '&body=' + encodeURIComponent(lines.join('\n'));
+  }
+
   document.querySelectorAll('form[data-form]').forEach(function (form) {
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
@@ -651,7 +678,9 @@
         status.className = 'status ok';
       } catch (err) {
         btn.disabled = false;
-        status.innerHTML = 'Something went wrong on our end. Email us instead: <a href="mailto:josiah@actsolafayette.org">josiah@actsolafayette.org</a>';
+        status.innerHTML = 'That did not reach us, and we did not want to lose what you wrote. ' +
+          '<a href="' + fallbackMailto(data) + '">Send it as an email instead</a> &mdash; ' +
+          'everything you typed is already filled in.';
         status.className = 'status err';
       }
     });
