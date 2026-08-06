@@ -3,7 +3,7 @@
 // the email is the record, which keeps a minor's information out of
 // third-party databases entirely.
 
-const DESTINATION = 'josiah@actsolafayette.org';
+const DESTINATION = 'josiah@creativereach.art';
 // checkcalltime.art is the SendGrid-authenticated sending domain today.
 // Swap once actsolafayette.org is authenticated in SendGrid.
 const FROM = { email: 'calls@checkcalltime.art', name: 'ACT-SO Lafayette Sign-ups' };
@@ -71,6 +71,9 @@ module.exports = async (req, res) => {
 
   const key = process.env.SENDGRID_API_KEY;
   if (!key) {
+    // Never log the submission itself — see the note at the top of this file.
+    // The form type is enough to know something was lost and what kind.
+    console.error(`[signup] SENDGRID_API_KEY is not set — a ${b.form} submission was dropped`);
     res.status(500).json({ ok: false, error: 'Mailer not configured yet' });
     return;
   }
@@ -88,6 +91,8 @@ module.exports = async (req, res) => {
   });
 
   if (!sg.ok) {
+    const detail = await sg.text().catch(() => '');
+    console.error(`[signup] SendGrid refused a ${b.form} submission: ${sg.status} ${detail.slice(0, 300)}`);
     res.status(502).json({ ok: false, error: 'Mail send failed' });
     return;
   }
