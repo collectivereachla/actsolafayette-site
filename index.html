@@ -674,7 +674,11 @@
         });
         if (!r.ok) throw new Error('failed');
         form.querySelectorAll('.field, .field-row, .submit').forEach(function (el) { el.style.display = 'none'; });
-        status.textContent = 'Got it. You’re on the list — we’ll be in touch soon.';
+        // A volunteer submission is now an APPLICATION awaiting a human's yes,
+        // not a place on a roster. Don't promise a seat we haven't given.
+        status.textContent = form.dataset.form === 'volunteer'
+          ? 'Thank you. We have what we need, and we’ll be in touch soon.'
+          : 'Got it. We’ll be in touch with orientation details.';
         status.className = 'status ok';
       } catch (err) {
         btn.disabled = false;
