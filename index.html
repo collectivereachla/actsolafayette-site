@@ -745,6 +745,10 @@
         block.querySelectorAll('input, textarea').forEach(function (el) { el.value = ''; });
         if (fileHint) { fileHint.textContent = 'PDF or Word, up to 3\u00A0MB.'; fileHint.classList.remove('bad'); }
       }
+      // A sponsor switching over from Judge shouldn't be left staring at a red
+      // warning about judges that no longer applies to them.
+      var st = form.querySelector('.status');
+      if (st && st.classList.contains('err')) { st.textContent = ''; st.className = 'status'; }
     }
     role.addEventListener('change', sync);
     sync();
