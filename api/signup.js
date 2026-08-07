@@ -241,7 +241,10 @@ function credsNote(b) {
   const proof = cap(b.proof_note, 2000);
   const hasResume = !!(b.resume && typeof b.resume === 'object' && b.resume.content);
 
-  if (hasResume) parts.push(`Resume attached to the sign-up email (${cap(b.resume.filename, 120) || 'file'}).`);
+  // Not "attached to the email" any more — Calltime stores it now and shows an
+  // "open resume" link on the application, so saying otherwise sends the
+  // reviewer to their inbox for a file that is already in front of them.
+  if (hasResume) parts.push(`Resume attached (${cap(b.resume.filename, 120) || 'file'}) — open it from this application.`);
   if (link) parts.push(`Work: ${link}`);
   if (proof) parts.push(`Background: ${proof}`);
   const note = cap(b.note, 2000);
