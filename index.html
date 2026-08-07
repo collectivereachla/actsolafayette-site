@@ -361,6 +361,29 @@
   }
   .picks input { width: auto; accent-color: var(--gold); }
   .hp { position: absolute; left: -9999px; height: 0; overflow: hidden; }
+
+  /* Credentials block — shown only to judges and mentors (see the script). */
+  .creds { display: none; margin-top: 1.6rem; padding: 1.3rem 1.4rem; border: 1px solid var(--line); background: #131313; }
+  .creds.on { display: block; }
+  .creds > .why { font-size: 0.95rem; line-height: 1.55; color: #cfc7ba; margin: 0 0 0.4rem; }
+  .creds > .why b { color: var(--paper); font-weight: 600; }
+  .creds .field:first-of-type { margin-top: 1.1rem; }
+  .creds .or {
+    display: flex; align-items: center; gap: 0.9rem;
+    margin: 1.4rem 0 0.2rem;
+    font-family: 'Oswald', sans-serif; font-size: 0.72rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: #8d8578;
+  }
+  .creds .or::before, .creds .or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+  .field input[type=file] { padding: 0.6rem 0.65rem; font-size: 0.9rem; cursor: pointer; }
+  .field input[type=file]::file-selector-button {
+    font-family: 'Oswald', sans-serif; font-size: 0.72rem; letter-spacing: 0.12em;
+    text-transform: uppercase; margin-right: 0.9rem; cursor: pointer;
+    background: transparent; color: var(--gold);
+    border: 1px solid var(--line); padding: 0.4rem 0.9rem;
+  }
+  .field .hint { font-size: 0.83rem; color: #8d8578; margin-top: 0.4rem; line-height: 1.5; text-transform: none; letter-spacing: 0; font-weight: 400; }
+  .field .hint.bad { color: #ff8a7a; }
   button.submit {
     margin-top: 1.8rem;
     font-family: 'Oswald', sans-serif;
@@ -603,6 +626,32 @@
         <label for="v-exp">Your field or category</label>
         <input id="v-exp" name="expertise" type="text" placeholder="e.g. actor, photographer, band director, engineer">
       </div>
+      <!-- Judges and mentors only. NAACP rules want three degreed or working
+           professionals on every panel, so this is a program requirement, not
+           paperwork for its own sake. Sponsors and day-of volunteers never see it. -->
+      <div class="creds" data-creds hidden>
+        <p class="why">ACT-SO seats <b>three degreed or working professionals</b> on every judging panel, and pairs every student with a mentor who works in their field. So we have to be able to show who you are.</p>
+        <p class="why">Attach a r&eacute;sum&eacute; if you have one handy &mdash; or skip it and tell us where your work can be seen. Either is fine.</p>
+
+        <div class="field">
+          <label for="v-resume">R&eacute;sum&eacute; or CV <span style="color:#8d8578">(optional)</span></label>
+          <input id="v-resume" name="resume" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+          <p class="hint" data-resume-hint>PDF or Word, up to 3&nbsp;MB.</p>
+        </div>
+
+        <p class="or">or, if you&rsquo;d rather not</p>
+
+        <div class="field">
+          <label for="v-proof-link">Where can we see your work?</label>
+          <input id="v-proof-link" name="proof_link" type="url" inputmode="url" placeholder="LinkedIn, a portfolio, your faculty or company page">
+        </div>
+        <div class="field">
+          <label for="v-proof">Your background</label>
+          <textarea id="v-proof" name="proof_note" rows="3" placeholder="Degree and where you earned it, what you do now and for whom, how long you've been at it."></textarea>
+          <p class="hint" data-proof-hint>A link or a few honest sentences &mdash; whichever is easier. We may follow up to confirm.</p>
+        </div>
+      </div>
+
       <div class="field">
         <label for="v-note">Anything else</label>
         <textarea id="v-note" name="note" rows="4"></textarea>
@@ -633,7 +682,8 @@
     categories: 'Categories', guardian_name: 'Parent / guardian',
     guardian_email: 'Email', guardian_phone: 'Phone',
     name: 'Name', role: 'Serving as', email: 'Email', phone: 'Phone',
-    expertise: 'Field / category', note: 'Anything else'
+    expertise: 'Field / category', proof_link: 'Work can be seen at',
+    proof_note: 'Background', note: 'Anything else'
   };
 
   function fallbackMailto(data) {
@@ -646,10 +696,94 @@
       if (Array.isArray(v)) { v = v.join(', '); }
       if (v) { lines.push(FIELD_LABELS[k] + ': ' + v); }
     });
+    // A mailto: cannot carry an attachment. Say so, so a judge who picked a
+    // resume doesn't assume it went along with the rest.
+    if (data.resume) { lines.push('', '(Resume selected: ' + data.resume.filename + ' — please attach it to this email.)'); }
     lines.push('', '(Sent from the sign-up form, which could not reach us.)');
     return 'mailto:josiah@actsolafayette.org?subject=' + encodeURIComponent(subject) +
       '&body=' + encodeURIComponent(lines.join('\n'));
   }
+
+  // ---- credentials, for judges and mentors only --------------------------
+  // ACT-SO seats three degreed or working professionals per panel, so a judge
+  // has to be checkable. A resume is the easy path; someone who hasn't got one
+  // to hand can point us at their work instead. One or the other, never neither.
+  var CREDS_ROLES = ['Judge', 'Mentor / Coach'];
+  var MAX_RESUME = 3 * 1024 * 1024;   // 3MB raw -> ~4MB base64, under Vercel's 4.5MB body cap
+  var OK_EXT = ['pdf', 'doc', 'docx'];
+  var MIN_PROOF = 30;                 // "I'm a pro" is not a background
+
+  function readAsBase64(file) {
+    return new Promise(function (resolve, reject) {
+      var fr = new FileReader();
+      fr.onerror = function () { reject(new Error('read failed')); };
+      fr.onload = function () {
+        // strip the "data:...;base64," prefix
+        var out = String(fr.result);
+        resolve(out.slice(out.indexOf(',') + 1));
+      };
+      fr.readAsDataURL(file);
+    });
+  }
+
+  document.querySelectorAll('form[data-form="volunteer"]').forEach(function (form) {
+    var role = form.querySelector('[name=role]');
+    var block = form.querySelector('[data-creds]');
+    var fileIn = form.querySelector('[name=resume]');
+    var fileHint = form.querySelector('[data-resume-hint]');
+    if (!role || !block) return;
+
+    function needsCreds() { return CREDS_ROLES.indexOf(role.value) !== -1; }
+
+    function sync() {
+      var on = needsCreds();
+      block.classList.toggle('on', on);
+      block.hidden = !on;
+      // Clear on the way out so a sponsor never silently submits a judge's
+      // paperwork, and so validation can't trip on a hidden field.
+      if (!on) {
+        block.querySelectorAll('input, textarea').forEach(function (el) { el.value = ''; });
+        if (fileHint) { fileHint.textContent = 'PDF or Word, up to 3\u00A0MB.'; fileHint.classList.remove('bad'); }
+      }
+    }
+    role.addEventListener('change', sync);
+    sync();
+
+    // Reject the wrong file at the moment it's picked, not after they hit Sign Up.
+    if (fileIn) {
+      fileIn.addEventListener('change', function () {
+        var f = fileIn.files && fileIn.files[0];
+        if (!fileHint) return;
+        fileHint.classList.remove('bad');
+        if (!f) { fileHint.textContent = 'PDF or Word, up to 3\u00A0MB.'; return; }
+        var ext = (f.name.split('.').pop() || '').toLowerCase();
+        if (OK_EXT.indexOf(ext) === -1) {
+          fileIn.value = '';
+          fileHint.textContent = 'That looks like a .' + ext + ' file. PDF or Word, please.';
+          fileHint.classList.add('bad');
+          return;
+        }
+        if (f.size > MAX_RESUME) {
+          fileIn.value = '';
+          fileHint.textContent = 'That file is ' + (f.size / 1048576).toFixed(1) + '\u00A0MB. The limit is 3\u00A0MB \u2014 or skip it and send us a link instead.';
+          fileHint.classList.add('bad');
+          return;
+        }
+        fileHint.textContent = f.name + ' \u2014 attached.';
+      });
+    }
+
+    form.checkCreds = function () {
+      if (!needsCreds()) return null;
+      var hasFile = fileIn && fileIn.files && fileIn.files.length > 0;
+      var link = (form.querySelector('[name=proof_link]') || {}).value || '';
+      var note = (form.querySelector('[name=proof_note]') || {}).value || '';
+      if (hasFile) return null;
+      if (link.trim()) return null;
+      if (note.trim().length >= MIN_PROOF) return null;
+      return 'Judges and mentors need to be checkable. Attach a r\u00E9sum\u00E9, or give us a link to your work \u2014 or a few sentences about your background.';
+    };
+  });
 
   document.querySelectorAll('form[data-form]').forEach(function (form) {
     form.addEventListener('submit', async function (e) {
@@ -659,13 +793,43 @@
       status.className = 'status';
       if (!form.checkValidity()) { form.reportValidity(); return; }
 
+      // Judges and mentors must be checkable one way or the other.
+      var credsProblem = form.checkCreds ? form.checkCreds() : null;
+      if (credsProblem) {
+        status.textContent = credsProblem;
+        status.className = 'status err';
+        return;
+      }
+
       var data = { form: form.dataset.form };
       new FormData(form).forEach(function (v, k) {
         if (k === 'categories') { (data.categories = data.categories || []).push(v); }
+        else if (k === 'resume') { /* the File is read separately, below */ }
         else { data[k] = v; }
       });
 
       btn.disabled = true;
+
+      // Read the resume here rather than posting multipart, so the API stays one
+      // JSON handler and the file rides straight into the email as an attachment.
+      var resumeFile = form.querySelector('[name=resume]');
+      resumeFile = resumeFile && resumeFile.files && resumeFile.files[0];
+      if (resumeFile) {
+        try {
+          data.resume = {
+            filename: resumeFile.name,
+            type: resumeFile.type || 'application/octet-stream',
+            size: resumeFile.size,
+            content: await readAsBase64(resumeFile)
+          };
+        } catch (err) {
+          btn.disabled = false;
+          status.textContent = 'We could not read that file. Try again, or skip it and send us a link instead.';
+          status.className = 'status err';
+          return;
+        }
+      }
+
       try {
         var r = await fetch('/api/signup', {
           method: 'POST',
