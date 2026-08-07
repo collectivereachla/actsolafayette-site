@@ -222,6 +222,16 @@ const INTAKE_ROLES = {
   'Sponsor': 'sponsor',
 };
 
+// Hand Calltime the same bytes the email got. It re-validates them from scratch
+// — extension, size, and the leading bytes — because a shared secret is not a
+// reason to trust a payload, and it stores the result where only the show's
+// leadership can read it.
+function resumeForCalltime(b) {
+  const r = b.resume;
+  if (!r || typeof r !== 'object' || !r.content) return undefined;
+  return { filename: cap(r.filename, 160) || 'resume.pdf', content: r.content };
+}
+
 // Fold the credential into the note Calltime stores, since intake has no field
 // for it. Ordered so the reviewer reads the proof first and the applicant's own
 // message second — the question in front of them is "is this person qualified".
@@ -263,10 +273,12 @@ async function relayToCalltime(b) {
         role,
         expertise: cap(b.expertise, 300),
         // Calltime's review room is where a judge is actually accepted, so the
-        // credential has to travel with them. The resume file itself stays in
-        // the email — the intake RPC takes no attachment — but a reviewer needs
-        // to know one exists rather than seeing a blank where proof should be.
+        // credential travels with them: the link and the written background in
+        // the note, and the file itself as an attachment Calltime stores in a
+        // private bucket. A reviewer opening the application gets the proof
+        // without going hunting through an inbox for it.
         note: credsNote(b),
+        resume: resumeForCalltime(b),
       }),
     });
     if (!r.ok) {
