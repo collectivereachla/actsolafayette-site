@@ -10,6 +10,83 @@ const FROM = { email: 'calls@checkcalltime.art', name: 'ACT-SO Lafayette Sign-up
 
 const cap = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
 
+// ---------------------------------------------------------------- credentials
+// ACT-SO seats three degreed or working professionals on every judging panel and
+// pairs each student with a mentor who works in their field, so those two roles
+// have to be checkable. A resume is the easy path; someone without one to hand
+// can point us at their work instead. One or the other — never neither.
+//
+// The browser checks all of this too, for a decent error message. This is the
+// check that counts: a form post is just an HTTP request, and anyone can send one.
+const CREDS_ROLES = ['Judge', 'Mentor / Coach'];
+const MIN_PROOF = 30;
+const MAX_RESUME_BYTES = 3 * 1024 * 1024;   // ~4MB base64, under Vercel's 4.5MB body cap
+
+// Extension -> the bytes a real file of that type starts with. Checked because
+// the extension and the declared MIME type are both just strings the caller
+// chose, and this attachment gets forwarded to a human who will open it.
+const RESUME_KINDS = {
+  pdf:  { mime: 'application/pdf', magic: [[0x25, 0x50, 0x44, 0x46]] },                       // %PDF
+  docx: { mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          magic: [[0x50, 0x4b, 0x03, 0x04]] },                                               // PK.. (zip)
+  doc:  { mime: 'application/msword', magic: [[0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]] }, // OLE2
+};
+
+// Never reuse the caller's filename as given: it lands in an email header and
+// could be a path, a control character, or 300 characters of nonsense.
+function safeFilename(raw, ext) {
+  const base = String(raw || '')
+    .replace(/[\\/]/g, ' ')             // no path separators
+    .replace(/[\x00-\x1f\x7f]/g, '')     // no control characters
+    .replace(/\.[^.]*$/, '')             // drop the extension; we re-add a known one
+    .replace(/[^\w .'-]/g, ' ')
+    .replace(/\.+/g, ' ')               // "../.." sanitizes safely but reads alarmingly
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 80);
+  return (base || 'resume') + '.' + ext;
+}
+
+/**
+ * Validate the posted resume. Returns { file } to attach, { error } to refuse,
+ * or {} when none was sent.
+ */
+function checkResume(r) {
+  if (!r || typeof r !== 'object') return {};
+
+  const ext = String(r.filename || '').split('.').pop().toLowerCase();
+  const kind = RESUME_KINDS[ext];
+  if (!kind) return { error: 'A resume must be a PDF or a Word document.' };
+
+  const b64 = typeof r.content === 'string' ? r.content : '';
+  if (!b64) return { error: 'That resume arrived empty.' };
+
+  let buf;
+  try {
+    buf = Buffer.from(b64, 'base64');
+  } catch {
+    return { error: 'That resume could not be read.' };
+  }
+  if (buf.length === 0) return { error: 'That resume arrived empty.' };
+  if (buf.length > MAX_RESUME_BYTES) return { error: 'That resume is over the 3 MB limit.' };
+
+  const matches = kind.magic.some((sig) => sig.every((byte, i) => buf[i] === byte));
+  if (!matches) {
+    // Renaming a .exe to .pdf is the oldest trick there is, and this file gets
+    // forwarded to a person who will double-click it.
+    return { error: 'That file does not look like a ' + ext.toUpperCase() + '. Try re-saving it, or send a link instead.' };
+  }
+
+  return {
+    file: {
+      content: buf.toString('base64'),
+      filename: safeFilename(r.filename, ext),
+      type: kind.mime,
+      disposition: 'attachment',
+    },
+  };
+}
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     res.status(405).json({ ok: false, error: 'POST only' });
@@ -24,7 +101,7 @@ module.exports = async (req, res) => {
     return;
   }
 
-  let subject, lines, replyTo;
+  let subject, lines, replyTo, attachments;
 
   if (b.form === 'student') {
     const student = cap(b.student_name, 120);
@@ -53,17 +130,47 @@ module.exports = async (req, res) => {
       res.status(400).json({ ok: false, error: 'Missing required fields' });
       return;
     }
-    subject = `ACT-SO volunteer — ${name} (${cap(b.role, 60) || 'unspecified'})`;
+    const role = cap(b.role, 60);
+    const proofLink = cap(b.proof_link, 500);
+    const proofNote = cap(b.proof_note, 2000);
+
+    const resume = checkResume(b.resume);
+    if (resume.error) {
+      res.status(400).json({ ok: false, error: resume.error });
+      return;
+    }
+
+    // Judges and mentors must be checkable. Re-checked here because the browser's
+    // version of this is a courtesy, not a gate.
+    if (CREDS_ROLES.includes(role)) {
+      const hasProof = !!resume.file || !!proofLink || proofNote.length >= MIN_PROOF;
+      if (!hasProof) {
+        res.status(400).json({
+          ok: false,
+          error: 'Judges and mentors need to be checkable. Attach a resume, or give us a link to your work — or a few sentences about your background.',
+        });
+        return;
+      }
+    }
+
+    subject = `ACT-SO volunteer — ${name} (${role || 'unspecified'})`;
     lines = [
       `Name: ${name}`,
       `Email: ${email}`,
       `Phone: ${cap(b.phone, 40) || '—'}`,
-      `Role: ${cap(b.role, 60) || '—'}`,
+      `Role: ${role || '—'}`,
       `Field / category: ${cap(b.expertise, 300) || '—'}`,
+      ``,
+      // Spelled out so the credential is readable at a glance in the inbox,
+      // rather than something to go hunting for.
+      `Resume: ${resume.file ? `attached (${resume.file.filename})` : 'none sent'}`,
+      `Work can be seen at: ${proofLink || '—'}`,
+      proofNote ? `Background:\n${proofNote}` : `Background: —`,
       ``,
       cap(b.note, 2000) ? `Note:\n${cap(b.note, 2000)}` : '',
     ];
     replyTo = email;
+    if (resume.file) attachments = [resume.file];
   } else {
     res.status(400).json({ ok: false, error: 'Unknown form' });
     return;
@@ -87,6 +194,7 @@ module.exports = async (req, res) => {
       reply_to: { email: replyTo },
       subject,
       content: [{ type: 'text/plain', value: lines.filter(Boolean).join('\n') }],
+      ...(attachments ? { attachments } : {}),
     }),
   });
 
@@ -114,6 +222,23 @@ const INTAKE_ROLES = {
   'Sponsor': 'sponsor',
 };
 
+// Fold the credential into the note Calltime stores, since intake has no field
+// for it. Ordered so the reviewer reads the proof first and the applicant's own
+// message second — the question in front of them is "is this person qualified".
+function credsNote(b) {
+  const parts = [];
+  const link = cap(b.proof_link, 500);
+  const proof = cap(b.proof_note, 2000);
+  const hasResume = !!(b.resume && typeof b.resume === 'object' && b.resume.content);
+
+  if (hasResume) parts.push(`Resume attached to the sign-up email (${cap(b.resume.filename, 120) || 'file'}).`);
+  if (link) parts.push(`Work: ${link}`);
+  if (proof) parts.push(`Background: ${proof}`);
+  const note = cap(b.note, 2000);
+  if (note) parts.push(`Note: ${note}`);
+  return parts.join('\n\n').slice(0, 2000);
+}
+
 async function relayToCalltime(b) {
   if (b.form !== 'volunteer') return;
 
@@ -137,7 +262,11 @@ async function relayToCalltime(b) {
         phone: cap(b.phone, 40),
         role,
         expertise: cap(b.expertise, 300),
-        note: cap(b.note, 2000),
+        // Calltime's review room is where a judge is actually accepted, so the
+        // credential has to travel with them. The resume file itself stays in
+        // the email — the intake RPC takes no attachment — but a reviewer needs
+        // to know one exists rather than seeing a blank where proof should be.
+        note: credsNote(b),
       }),
     });
     if (!r.ok) {
