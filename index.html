@@ -360,6 +360,8 @@
     text-transform: none; color: var(--paper); margin: 0;
   }
   .picks input { width: auto; accent-color: var(--gold); }
+  .picks.consent { grid-template-columns: 1fr; }
+  .picks.consent label { align-items: flex-start; line-height: 1.45; }
   .hp { position: absolute; left: -9999px; height: 0; overflow: hidden; }
 
   /* Credentials block — shown only to judges and mentors (see the script). */
@@ -581,6 +583,13 @@
           <input id="s-gphone" name="guardian_phone" type="tel" autocomplete="tel">
         </div>
       </div>
+      <div class="field">
+        <label for="s-consent">Referral consent</label>
+        <div class="picks consent">
+          <label><input id="s-consent" type="checkbox" name="referral_consent" value="yes"> May we share your child&rsquo;s performance with their school to support a gifted and talented referral?</label>
+        </div>
+        <p class="hint">Optional. Louisiana identifies Talented students in the arts by referral; this lets us make one on your child&rsquo;s behalf.</p>
+      </div>
       <div class="hp" aria-hidden="true"><label>Leave empty<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
       <button class="submit" type="submit">Sign Up</button>
       <p class="status" role="status"></p>
@@ -679,7 +688,7 @@
   // These labels turn a submission back into a readable email.
   var FIELD_LABELS = {
     student_name: 'Student', grade: 'Grade', school: 'School',
-    categories: 'Categories', guardian_name: 'Parent / guardian',
+    categories: 'Categories', referral_consent: 'Referral consent', guardian_name: 'Parent / guardian',
     guardian_email: 'Email', guardian_phone: 'Phone',
     name: 'Name', role: 'Serving as', email: 'Email', phone: 'Phone',
     expertise: 'Field / category', proof_link: 'Work can be seen at',

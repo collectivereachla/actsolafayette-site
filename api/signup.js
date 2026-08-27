@@ -121,6 +121,8 @@ module.exports = async (req, res) => {
       `Parent/guardian: ${guardian}`,
       `Email: ${email}`,
       `Phone: ${cap(b.guardian_phone, 40) || '—'}`,
+      ``,
+      `Referral consent: ${b.referral_consent === 'yes' ? 'YES: may share the student\'s performance with their school for a gifted and talented referral' : 'not given'}`,
     ];
     replyTo = email;
   } else if (b.form === 'volunteer') {
