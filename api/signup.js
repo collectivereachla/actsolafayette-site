@@ -10,6 +10,40 @@ const FROM = { email: 'calls@checkcalltime.art', name: 'ACT-SO Lafayette Sign-up
 
 const cap = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
 
+// ------------------------------------------------------------------ categories
+// Straight off the NAACP national student application: "Contestants may
+// participate in up to 3 competitions. However, students competing in Culinary
+// Arts and Hospitality Management cannot compete in any other category."
+// The browser checks this too, for a decent error message. This is the check
+// that counts.
+const MAX_CATEGORIES = 3;
+const SOLO_CATEGORIES = ['Culinary Arts (33)', 'Hospitality Management (32)'];
+
+// The national application shows dates as "Dec 31, 2024"; the form posts an
+// ISO date. Print theirs, so a chair transcribing this retypes nothing.
+function humanDate(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(cap(iso, 20));
+  if (!m) return cap(iso, 20);
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const month = MONTHS[Number(m[2]) - 1];
+  if (!month) return cap(iso, 20);
+  return `${month} ${Number(m[3])}, ${m[1]}`;
+}
+
+function checkCategories(raw) {
+  const picked = (Array.isArray(raw) ? raw : raw ? [raw] : [])
+    .map((v) => cap(v, 60))
+    .filter(Boolean);
+  if (picked.length > MAX_CATEGORIES) {
+    return { error: 'A student may enter up to three categories.' };
+  }
+  const solo = picked.filter((v) => SOLO_CATEGORIES.includes(v));
+  if (solo.length > 1 || (solo.length && picked.length > solo.length)) {
+    return { error: 'A student competing in Culinary Arts or Hospitality Management cannot compete in any other category.' };
+  }
+  return { picked };
+}
+
 // ---------------------------------------------------------------- credentials
 // ACT-SO seats three degreed or working professionals on every judging panel and
 // pairs each student with a mentor who works in their field, so those two roles
@@ -104,23 +138,58 @@ module.exports = async (req, res) => {
   let subject, lines, replyTo, attachments;
 
   if (b.form === 'student') {
-    const student = cap(b.student_name, 120);
+    const first = cap(b.student_first, 80);
+    const last = cap(b.student_last, 80);
+    const student = [first, last].filter(Boolean).join(' ');
     const guardian = cap(b.guardian_name, 120);
     const email = cap(b.guardian_email, 200);
-    if (!student || !guardian || !email) {
+    const school = cap(b.school, 160);
+    const grade = cap(b.grade, 20);
+    if (!first || !last || !guardian || !email || !grade || !school) {
       res.status(400).json({ ok: false, error: 'Missing required fields' });
       return;
     }
+
+    const cats = checkCategories(b.categories);
+    if (cats.error) {
+      res.status(400).json({ ok: false, error: cats.error });
+      return;
+    }
+
+    const or = (v) => v || '—';
     subject = `ACT-SO student sign-up — ${student}`;
+    // Ordered and labelled to match the national student application, so this
+    // email can be transcribed into it top to bottom without hunting.
     lines = [
+      `Unit: ${cap(b.unit, 80) || 'NAACP Lafayette Branch'}`,
+      `Application submission year: ${cap(b.submission_year, 10) || '—'}`,
+      ``,
       `Student: ${student}`,
-      `Grade: ${cap(b.grade, 20)}`,
-      `School: ${cap(b.school, 160) || '—'}`,
-      `Categories: ${cap(Array.isArray(b.categories) ? b.categories.join(', ') : b.categories, 500) || '—'}`,
+      `Preferred name: ${or(cap(b.student_preferred, 80))}`,
+      `D.O.B: ${or(humanDate(b.dob))}`,
+      `Gender: ${or(cap(b.gender, 60))}`,
+      `Grade: ${grade}`,
+      `Student e-mail: ${or(cap(b.student_email, 200))}`,
+      `Student cell: ${or(cap(b.student_cell, 40))}`,
+      ``,
+      `Address: ${or(cap(b.street, 200))}`,
+      `         ${or(cap(b.city, 80))}, ${or(cap(b.state, 60))} ${cap(b.zip, 20)}`,
+      `         ${or(cap(b.country, 80))}`,
       ``,
       `Parent/guardian: ${guardian}`,
-      `Email: ${email}`,
-      `Phone: ${cap(b.guardian_phone, 40) || '—'}`,
+      `Parent e-mail: ${email}`,
+      `Parent cell: ${or(cap(b.guardian_phone, 40))}`,
+      `Home phone: ${or(cap(b.home_phone, 40))}`,
+      ``,
+      `High school: ${school}`,
+      `High school city/state: ${or(cap(b.school_city, 80))}, ${or(cap(b.school_state, 60))}`,
+      ``,
+      `Returning competitor: ${or(cap(b.returning, 10))}`,
+      `NAACP member: ${or(cap(b.naacp_member, 10))}`,
+      `Planning to attend college: ${or(cap(b.college_plans, 10))}`,
+      ``,
+      `Categories (max 3): ${cats.picked.join(', ') || '—'}`,
+      `Instrument / voice: ${or(cap(b.music_detail, 200))}`,
       ``,
       `Referral consent: ${b.referral_consent === 'yes' ? 'YES: may share the student\'s performance with their school for a gifted and talented referral' : 'not given'}`,
     ];
@@ -169,7 +238,7 @@ module.exports = async (req, res) => {
       `Work can be seen at: ${proofLink || '—'}`,
       proofNote ? `Background:\n${proofNote}` : `Background: —`,
       ``,
-      cap(b.note, 2000) ? `Note:\n${cap(b.note, 2000)}` : '',
+      cap(b.note, 2000) ? `Note:\n${cap(b.note, 2000)}` : null,
     ];
     replyTo = email;
     if (resume.file) attachments = [resume.file];
@@ -195,7 +264,7 @@ module.exports = async (req, res) => {
       from: FROM,
       reply_to: { email: replyTo },
       subject,
-      content: [{ type: 'text/plain', value: lines.filter(Boolean).join('\n') }],
+      content: [{ type: 'text/plain', value: lines.filter((l) => l !== null).join('\n') }],
       ...(attachments ? { attachments } : {}),
     }),
   });

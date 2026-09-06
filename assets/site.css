@@ -364,6 +364,32 @@ form { max-width: 40rem; }
 .picks a { color: var(--gold); text-decoration: underline; text-underline-offset: 0.15em; }
 .picks.consent { grid-template-columns: 1fr; }
 .picks.consent label { align-items: flex-start; line-height: 1.45; }
+/* Section blocks inside a long form. The legend sits a tier above a field
+   label — white and wider-set against the gold micro-caps — so the eye can
+   tell "Home address" from "Street" without a second typeface. */
+.formsec { border: 0; min-width: 0; margin-top: 2.6rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+.formsec > legend {
+  display: block; width: 100%; padding: 0; margin-bottom: 0;
+  font-weight: 600; font-size: 0.95rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--paper);
+}
+.formsec > .hint { font-size: 0.83rem; color: #8d8578; margin-top: 0.9rem; line-height: 1.55; }
+.formsec > .hint b { color: var(--paper); font-weight: 600; }
+.formsec > .field-row:first-of-type { margin-top: 0; }
+
+/* The 33 national categories, grouped the way the application groups them. */
+.picks-cats { margin-top: 1.1rem; row-gap: 0.55rem; }
+.pick-group {
+  grid-column: 1 / -1; margin-top: 1.1rem;
+  font-weight: 700; font-size: 0.68rem; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--gold);
+}
+.pick-group:first-child { margin-top: 0; }
+
+/* The unit-declaration and W9 language, quoted from the national application. */
+.notice { margin-top: 2rem; padding: 1.1rem 1.2rem; border-left: 2px solid var(--gold); background: #131313; }
+.notice .hint { font-size: 0.83rem; color: #8d8578; line-height: 1.6; margin: 0; }
+
 .hp { position: absolute; left: -9999px; height: 0; overflow: hidden; }
 
 /* Credentials block — shown only to judges and mentors (see the script). */

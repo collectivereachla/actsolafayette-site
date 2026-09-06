@@ -125,65 +125,228 @@
     <p class="label">Student Sign-Up</p>
     <h2>Put your name in early.</h2>
     <div class="form-intro">
-      <p class="lede">Official registration follows NAACP rules this fall. Signing up here tells us your student is interested, so your family gets the orientation details first &mdash; it isn&rsquo;t registration itself. This goes straight to the program team and nowhere else.</p>
+      <p class="lede">Signing up here tells us your student is interested and puts your family first in line for orientation. It is not the NAACP&rsquo;s official registration &mdash; that opens on the national portal this fall &mdash; but this form asks for the same things the national application does, so nothing has to be answered twice. It goes straight to the program team and nowhere else.</p>
     </div>
     <form data-form="student" novalidate>
-      <p class="req-note">Fields marked * are required.</p>
-      <div class="field-row">
-        <div class="field">
-          <label for="s-name">Student name *</label>
-          <!-- A parent fills this form, so the student's name is NOT the filler's name.
-               autocomplete="name" here made browsers autofill the parent into it. -->
-          <input id="s-name" name="student_name" type="text" autocomplete="off" required>
+      <p class="req-note">Fields marked * are required to sign up. The rest is what the national application asks for &mdash; filling it in now means your family does not answer it twice.</p>
+      <input type="hidden" name="unit" value="NAACP Lafayette Branch">
+      <input type="hidden" name="submission_year" value="2027">
+
+      <fieldset class="formsec">
+        <legend>The student</legend>
+        <div class="field-row">
+          <div class="field">
+            <label for="s-first">Student first name *</label>
+            <!-- A parent fills this form, so the student's name is NOT the filler's name.
+                 autocomplete="name" here made browsers autofill the parent into it. -->
+            <input id="s-first" name="student_first" type="text" autocomplete="off" required>
+          </div>
+          <div class="field">
+            <label for="s-last">Student last name *</label>
+            <input id="s-last" name="student_last" type="text" autocomplete="off" required>
+          </div>
         </div>
-        <div class="field">
-          <label for="s-grade">Grade in 2026&ndash;27 *</label>
-          <select id="s-grade" name="grade" required>
-            <option value="">Choose&hellip;</option>
-            <option>9th</option><option>10th</option><option>11th</option><option>12th</option>
-          </select>
+        <div class="field-row">
+          <div class="field">
+            <label for="s-preferred">Preferred name</label>
+            <input id="s-preferred" name="student_preferred" type="text" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="s-dob">Date of birth</label>
+            <input id="s-dob" name="dob" type="date" autocomplete="off">
+          </div>
         </div>
-      </div>
-      <div class="field">
-        <label for="s-school">School</label>
-        <input id="s-school" name="school" type="text">
-      </div>
-      <fieldset class="field">
-        <legend>Categories they&rsquo;re drawn to</legend>
-        <div class="picks">
-          <label><input type="checkbox" name="categories" value="Dramatics"> Dramatics</label>
-          <label><input type="checkbox" name="categories" value="Oratory"> Oratory</label>
-          <label><input type="checkbox" name="categories" value="Spoken Word"> Spoken Word</label>
-          <label><input type="checkbox" name="categories" value="Written Poetry"> Written Poetry</label>
-          <label><input type="checkbox" name="categories" value="Short Story"> Short Story</label>
-          <label><input type="checkbox" name="categories" value="Playwriting"> Playwriting</label>
-          <label><input type="checkbox" name="categories" value="Music Composition"> Music Composition</label>
-          <label><input type="checkbox" name="categories" value="Vocal Music"> Vocal Music</label>
-          <label><input type="checkbox" name="categories" value="Instrumental Music"> Instrumental Music</label>
-          <label><input type="checkbox" name="categories" value="Dance"> Dance</label>
-          <label><input type="checkbox" name="categories" value="Filmmaking"> Filmmaking</label>
-          <label><input type="checkbox" name="categories" value="Photography"> Photography</label>
-          <label><input type="checkbox" name="categories" value="Drawing"> Drawing</label>
-          <label><input type="checkbox" name="categories" value="Painting"> Painting</label>
-          <label><input type="checkbox" name="categories" value="Sculpture"> Sculpture</label>
-          <label><input type="checkbox" name="categories" value="STEM / business / culinary"> STEM / business / culinary</label>
-          <label><input type="checkbox" name="categories" value="Not sure yet"> Not sure yet</label>
+        <div class="field-row">
+          <div class="field">
+            <label for="s-grade">Grade in 2026&ndash;27 *</label>
+            <select id="s-grade" name="grade" required>
+              <option value="">Choose&hellip;</option>
+              <option>9th (Freshman)</option>
+              <option>10th (Sophomore)</option>
+              <option>11th (Junior)</option>
+              <option>12th (Senior)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="s-gender">Gender</label>
+            <input id="s-gender" name="gender" type="text" autocomplete="off" aria-describedby="s-gender-hint">
+            <p class="hint" id="s-gender-hint">Optional, on the national application and here.</p>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="s-semail">Student email</label>
+            <input id="s-semail" name="student_email" type="email" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="s-scell">Student cell</label>
+            <input id="s-scell" name="student_cell" type="tel" autocomplete="off">
+          </div>
         </div>
       </fieldset>
-      <div class="field">
-        <label for="s-guardian">Parent / guardian name *</label>
-        <input id="s-guardian" name="guardian_name" type="text" autocomplete="name" required>
-      </div>
-      <div class="field-row">
+
+      <fieldset class="formsec">
+        <legend>Home address</legend>
         <div class="field">
-          <label for="s-gemail">Parent / guardian email *</label>
-          <input id="s-gemail" name="guardian_email" type="email" autocomplete="email" required>
+          <label for="s-street">Street</label>
+          <input id="s-street" name="street" type="text" autocomplete="street-address">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="s-city">City</label>
+            <input id="s-city" name="city" type="text" autocomplete="address-level2">
+          </div>
+          <div class="field">
+            <label for="s-state">State</label>
+            <input id="s-state" name="state" type="text" autocomplete="address-level1" value="Louisiana">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="s-zip">ZIP code</label>
+            <input id="s-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code">
+          </div>
+          <div class="field">
+            <label for="s-country">Country</label>
+            <input id="s-country" name="country" type="text" autocomplete="country-name" value="United States">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="formsec">
+        <legend>Parent or guardian</legend>
+        <div class="field">
+          <label for="s-guardian">Parent / guardian full name *</label>
+          <input id="s-guardian" name="guardian_name" type="text" autocomplete="name" required>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="s-gemail">Parent / guardian email *</label>
+            <input id="s-gemail" name="guardian_email" type="email" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="s-gphone">Parent / guardian cell *</label>
+            <input id="s-gphone" name="guardian_phone" type="tel" autocomplete="tel" required>
+          </div>
         </div>
         <div class="field">
-          <label for="s-gphone">Parent / guardian phone</label>
-          <input id="s-gphone" name="guardian_phone" type="tel" autocomplete="tel">
+          <label for="s-hphone">Home phone</label>
+          <input id="s-hphone" name="home_phone" type="tel" autocomplete="tel">
         </div>
+      </fieldset>
+
+      <fieldset class="formsec">
+        <legend>School</legend>
+        <div class="field">
+          <label for="s-school">High school name *</label>
+          <input id="s-school" name="school" type="text" required>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="s-school-city">High school city</label>
+            <input id="s-school-city" name="school_city" type="text">
+          </div>
+          <div class="field">
+            <label for="s-school-state">High school state</label>
+            <input id="s-school-state" name="school_state" type="text" value="Louisiana">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="formsec">
+        <legend>A few things the national application asks</legend>
+        <div class="field-row">
+          <div class="field">
+            <label for="s-returning">Returning competitor</label>
+            <select id="s-returning" name="returning">
+              <option value="">Choose&hellip;</option>
+              <option>No</option>
+              <option>Yes</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="s-member">NAACP member</label>
+            <select id="s-member" name="naacp_member" aria-describedby="s-member-hint">
+              <option value="">Choose&hellip;</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+            <p class="hint" id="s-member-hint">Membership is never required to compete.</p>
+          </div>
+        </div>
+        <div class="field">
+          <label for="s-college">Graduating seniors: are you planning to attend college?</label>
+          <select id="s-college" name="college_plans">
+            <option value="">Choose&hellip;</option>
+            <option>Yes</option>
+            <option>No</option>
+          </select>
+        </div>
+      </fieldset>
+
+      <fieldset class="formsec">
+        <legend>Competition categories</legend>
+        <p class="hint">Category names and numbers below are the NAACP's own. A student may enter <b>up to three</b>. Culinary Arts and Hospitality Management are the exception: a student in either one competes in nothing else. Lafayette runs all of the performing, visual and humanities categories; STEM, business and culinary open by interest.</p>
+        <div class="picks picks-cats">
+          <p class="pick-group">Performing Arts</p>
+          <label><input type="checkbox" name="categories" value="Dance: Ballet (15)"> Dance: Ballet (15)</label>
+          <label><input type="checkbox" name="categories" value="Dance: Contemporary (16)"> Dance: Contemporary (16)</label>
+          <label><input type="checkbox" name="categories" value="Dance: Modern (17)"> Dance: Modern (17)</label>
+          <label><input type="checkbox" name="categories" value="Dance: Cultural (18)"> Dance: Cultural (18)</label>
+          <label><input type="checkbox" name="categories" value="Dramatics (19)"> Dramatics (19)</label>
+          <label><input type="checkbox" name="categories" value="Music: Instr.&mdash;Classical (20)"> Music: Instr.&mdash;Classical (20)</label>
+          <label><input type="checkbox" name="categories" value="Music: Instr.&mdash;Contemp. (21)"> Music: Instr.&mdash;Contemp. (21)</label>
+          <label><input type="checkbox" name="categories" value="Music: Vocal&mdash;Classical (22)"> Music: Vocal&mdash;Classical (22)</label>
+          <label><input type="checkbox" name="categories" value="Music: Vocal&mdash;Contemp. (23)"> Music: Vocal&mdash;Contemp. (23)</label>
+          <label><input type="checkbox" name="categories" value="Oratory (24)"> Oratory (24)</label>
+          <label><input type="checkbox" name="categories" value="Spoken Word (25)"> Spoken Word (25)</label>
+
+          <p class="pick-group">Visual Arts</p>
+          <label><input type="checkbox" name="categories" value="Drawing (26)"> Drawing (26)</label>
+          <label><input type="checkbox" name="categories" value="Filmmaking (27)"> Filmmaking (27)</label>
+          <label><input type="checkbox" name="categories" value="Painting (28)"> Painting (28)</label>
+          <label><input type="checkbox" name="categories" value="Photography (29)"> Photography (29)</label>
+          <label><input type="checkbox" name="categories" value="Sculpture (30)"> Sculpture (30)</label>
+
+          <p class="pick-group">Humanities</p>
+          <label><input type="checkbox" name="categories" value="Music Composition (10)"> Music Composition (10)</label>
+          <label><input type="checkbox" name="categories" value="Original Essay (11)"> Original Essay (11)</label>
+          <label><input type="checkbox" name="categories" value="Playwriting (12)"> Playwriting (12)</label>
+          <label><input type="checkbox" name="categories" value="Poetry - Written (13)"> Poetry - Written (13)</label>
+          <label><input type="checkbox" name="categories" value="Short Story (14)"> Short Story (14)</label>
+
+          <p class="pick-group">STEM</p>
+          <label><input type="checkbox" name="categories" value="Architecture (01)"> Architecture (01)</label>
+          <label><input type="checkbox" name="categories" value="Biology/Microbiology (02)"> Biology/Microbiology (02)</label>
+          <label><input type="checkbox" name="categories" value="Chemistry/Biochemistry (03)"> Chemistry/Biochemistry (03)</label>
+          <label><input type="checkbox" name="categories" value="Computer Science (04)"> Computer Science (04)</label>
+          <label><input type="checkbox" name="categories" value="Earth &amp; Space Sciences (05)"> Earth &amp; Space Sciences (05)</label>
+          <label><input type="checkbox" name="categories" value="Engineering (06)"> Engineering (06)</label>
+          <label><input type="checkbox" name="categories" value="Mathematics (07)"> Mathematics (07)</label>
+          <label><input type="checkbox" name="categories" value="Medicine &amp; Health (08)"> Medicine &amp; Health (08)</label>
+          <label><input type="checkbox" name="categories" value="Physics (09)"> Physics (09)</label>
+
+          <p class="pick-group">Business</p>
+          <label><input type="checkbox" name="categories" value="Entrepreneurship (31)"> Entrepreneurship (31)</label>
+          <label><input type="checkbox" name="categories" value="Hospitality Management (32)"> Hospitality Management (32)</label>
+
+          <p class="pick-group">Culinary</p>
+          <label><input type="checkbox" name="categories" value="Culinary Arts (33)"> Culinary Arts (33)</label>
+
+          <p class="pick-group">Still deciding</p>
+          <label><input type="checkbox" name="categories" value="Not sure yet"> Not sure yet</label>
+        </div>
+        <div class="field">
+          <label for="s-music">For music categories: instrument and/or voice</label>
+          <input id="s-music" name="music_detail" type="text" placeholder="soprano, drums, saxophone" aria-describedby="s-music-hint">
+          <p class="hint" id="s-music-hint">The national application asks music competitors to name the instrument or voice part for each competition entered.</p>
+        </div>
+      </fieldset>
+
+      <div class="notice">
+        <p class="hint">From the NAACP&rsquo;s national student application: &ldquo;All NAACP ACT-SO Contestants must declare one unit to compete with during a single cycle. Students are not permitted to split their competitions across multiple units. Any contestant violating this policy will be disqualified and prevented from participating in the competition. To accept any cash prize winnings from ACT-SO, you will be required to complete and submit a W9 form for tax purposes.&rdquo;</p>
       </div>
+
       <fieldset class="field">
         <legend>Referral consent</legend>
         <div class="picks consent">
@@ -310,9 +473,18 @@
   // If the relay is down, we still refuse to lose what someone typed.
   // These labels turn a submission back into a readable email.
   var FIELD_LABELS = {
-    student_name: 'Student', grade: 'Grade', school: 'School',
-    categories: 'Categories', referral_consent: 'Referral consent', guardian_name: 'Parent / guardian',
-    guardian_email: 'Email', guardian_phone: 'Phone',
+    unit: 'Unit', submission_year: 'Application submission year',
+    student_first: 'Student first name', student_last: 'Student last name',
+    student_preferred: 'Preferred name', dob: 'Date of birth', grade: 'Grade',
+    gender: 'Gender', student_email: 'Student email', student_cell: 'Student cell',
+    street: 'Street', city: 'City', state: 'State', zip: 'ZIP', country: 'Country',
+    guardian_name: 'Parent / guardian', guardian_email: 'Parent / guardian email',
+    guardian_phone: 'Parent / guardian cell', home_phone: 'Home phone',
+    school: 'High school', school_city: 'High school city', school_state: 'High school state',
+    returning: 'Returning competitor', naacp_member: 'NAACP member',
+    college_plans: 'Planning to attend college',
+    categories: 'Categories', music_detail: 'Instrument / voice',
+    referral_consent: 'Referral consent',
     name: 'Name', role: 'Serving as', email: 'Email', phone: 'Phone',
     expertise: 'Field / category', proof_link: 'Work can be seen at',
     proof_note: 'Background', note: 'Anything else'
@@ -320,7 +492,7 @@
 
   function fallbackMailto(data) {
     var subject = data.form === 'student'
-      ? 'ACT-SO student sign-up — ' + (data.student_name || '')
+      ? 'ACT-SO student sign-up — ' + ((data.student_first || '') + ' ' + (data.student_last || '')).trim()
       : 'ACT-SO volunteer — ' + (data.name || '');
     var lines = [];
     Object.keys(FIELD_LABELS).forEach(function (k) {
@@ -334,6 +506,31 @@
     lines.push('', '(Sent from the sign-up form, which could not reach us.)');
     return 'mailto:josiah@actsolafayette.org?subject=' + encodeURIComponent(subject) +
       '&body=' + encodeURIComponent(lines.join('\n'));
+  }
+
+  // ---- category rules, straight off the national application -------------
+  // "Contestants may participate in up to 3 competitions. However, students
+  // competing in Culinary Arts and Hospitality Management cannot compete in any
+  // other category." Checked here for a decent message; api/signup.js checks it
+  // again, because a form post is just an HTTP request.
+  var MAX_CATEGORIES = 3;
+  var SOLO_CATEGORIES = ['Culinary Arts (33)', 'Hospitality Management (32)'];
+
+  function checkCategories(form) {
+    var picked = Array.prototype.slice
+      .call(form.querySelectorAll('[name=categories]:checked'))
+      .map(function (el) { return el.value; });
+    if (picked.length > MAX_CATEGORIES) {
+      return 'A student may enter up to three categories. You have picked ' + picked.length + '.';
+    }
+    var solo = picked.filter(function (v) { return SOLO_CATEGORIES.indexOf(v) > -1; });
+    if (solo.length && picked.length > solo.length) {
+      return 'A student competing in Culinary Arts or Hospitality Management cannot compete in any other category. Pick one or the other.';
+    }
+    if (solo.length > 1) {
+      return 'Culinary Arts and Hospitality Management cannot be entered together.';
+    }
+    return null;
   }
 
   // ---- credentials, for judges and mentors only --------------------------
@@ -477,6 +674,18 @@
         return;
       }
 
+      // Up to three categories, and culinary/hospitality stand alone.
+      if (form.dataset.form === 'student') {
+        var catProblem = checkCategories(form);
+        if (catProblem) {
+          status.textContent = catProblem;
+          status.className = 'status err';
+          var firstCat = form.querySelector('[name=categories]');
+          if (firstCat) firstCat.focus();
+          return;
+        }
+      }
+
       var data = { form: form.dataset.form };
       new FormData(form).forEach(function (v, k) {
         if (k === 'categories') { (data.categories = data.categories || []).push(v); }
@@ -513,7 +722,7 @@
           body: JSON.stringify(data)
         });
         if (!r.ok) throw new Error('failed');
-        form.querySelectorAll('.field, .field-row, .submit').forEach(function (el) { el.style.display = 'none'; });
+        form.querySelectorAll('.field, .field-row, .formsec, .notice, .req-note, .submit').forEach(function (el) { el.style.display = 'none'; });
         // A volunteer submission is now an APPLICATION awaiting a human's yes,
         // not a place on a roster. Don't promise a seat we haven't given.
         status.textContent = form.dataset.form === 'volunteer'
