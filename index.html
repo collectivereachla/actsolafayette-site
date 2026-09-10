@@ -153,7 +153,8 @@
           </div>
           <div class="field">
             <label for="s-dob">Date of birth</label>
-            <input id="s-dob" name="dob" type="date" autocomplete="off">
+            <input id="s-dob" name="dob" type="date" autocomplete="off" aria-describedby="s-dob-hint">
+            <p class="hint" id="s-dob-hint" data-dob-hint></p>
           </div>
         </div>
         <div class="field-row">
@@ -554,6 +555,33 @@
       fr.readAsDataURL(file);
     });
   }
+
+  // A typo in the year is the easiest mistake on this form to make and the
+  // hardest to catch later: "2019" for "2009" produces a six-year-old freshman,
+  // and nobody notices until someone reads the email. So we WARN and let them
+  // through — a student who skipped grades or is finishing a fifth year is real,
+  // and the form should not call them a mistake.
+  document.querySelectorAll('form[data-form="student"]').forEach(function (form) {
+    var dob = form.querySelector('[name=dob]');
+    var hint = form.querySelector('[data-dob-hint]');
+    if (!dob || !hint) return;
+    dob.addEventListener('change', function () {
+      hint.textContent = '';
+      hint.classList.remove('bad');
+      if (!dob.value) return;
+      var b = new Date(dob.value + 'T00:00:00');
+      if (isNaN(b)) return;
+      var now = new Date();
+      var age = now.getFullYear() - b.getFullYear();
+      var m = now.getMonth() - b.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < b.getDate())) age--;
+      if (age < 13 || age > 19) {
+        hint.textContent = 'That birthday makes them ' + age + '. ACT-SO is grades 9 through 12, '
+          + 'so most students are 13 to 19 \u2014 check the year. If it is right, carry on.';
+        hint.classList.add('bad');
+      }
+    });
+  });
 
   document.querySelectorAll('form[data-form="volunteer"]').forEach(function (form) {
     var role = form.querySelector('[name=role]');
