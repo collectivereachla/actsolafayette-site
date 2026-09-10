@@ -403,7 +403,7 @@
         </div>
       </div>
       <div class="field">
-        <label for="v-exp">Your field or category</label>
+        <label for="v-exp">Your field or category<span data-exp-req hidden> *</span></label>
         <input id="v-exp" name="expertise" type="text" placeholder="e.g. actor, photographer, band director, engineer">
       </div>
       <!-- Judges and mentors only. NAACP rules want three degreed or working
@@ -560,6 +560,8 @@
     var block = form.querySelector('[data-creds]');
     var fileIn = form.querySelector('[name=resume]');
     var fileHint = form.querySelector('[data-resume-hint]');
+    var expIn = form.querySelector('[name=expertise]');
+    var expReq = form.querySelector('[data-exp-req]');
     if (!role || !block) return;
 
     function needsCreds() { return CREDS_ROLES.indexOf(role.value) !== -1; }
@@ -568,6 +570,14 @@
       var on = needsCreds();
       block.classList.toggle('on', on);
       block.hidden = !on;
+      // Panels are seated per category, and the whole ask is "tell us your
+      // field" — so a judge or mentor row with no field is a row nobody can act
+      // on. Required for them, optional for sponsors and day-of volunteers.
+      if (expIn) {
+        expIn.required = on;
+        if (!on) expIn.removeAttribute('aria-invalid');
+      }
+      if (expReq) expReq.hidden = !on;
       // Clear on the way out so a sponsor never silently submits a judge's
       // paperwork, and so validation can't trip on a hidden field.
       if (!on) {
