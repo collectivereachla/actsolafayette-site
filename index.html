@@ -640,12 +640,26 @@
     } else if (el.validity.typeMismatch && el.type === 'email') {
       msg = 'That email address doesn\u2019t look right. Check it and try again.';
     } else if (el.validity.typeMismatch && el.type === 'url') {
-      msg = 'That link doesn\u2019t look like a web address. It should start with http.';
+      msg = 'That link doesn\u2019t look like a web address. Check it and try again.';
     } else {
       msg = el.validationMessage;
     }
     return { el: el, msg: msg };
   }
+
+  // A person types "josiahprice.com" because that is what a web address looks
+  // like to a person. type="url" then rejects it for want of a scheme. Add the
+  // scheme for them rather than making them guess what we wanted.
+  function normaliseUrl(el) {
+    var v = (el.value || '').trim();
+    if (!v) return;
+    if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(v) && /^[^\s@]+\.[a-z]{2,}([\/?#].*)?$/i.test(v)) {
+      el.value = 'https://' + v;
+    }
+  }
+  document.querySelectorAll('input[type=url]').forEach(function (el) {
+    el.addEventListener('blur', function () { normaliseUrl(el); });
+  });
 
   document.querySelectorAll('form[data-form]').forEach(function (form) {
     // Once someone fixes a field, stop calling it wrong.
@@ -657,6 +671,7 @@
       var status = form.querySelector('.status');
       var btn = form.querySelector('.submit');
       status.className = 'status';
+      form.querySelectorAll('input[type=url]').forEach(normaliseUrl);
       var problem = firstProblem(form);
       if (problem) {
         status.textContent = problem.msg;
@@ -722,7 +737,7 @@
           body: JSON.stringify(data)
         });
         if (!r.ok) throw new Error('failed');
-        form.querySelectorAll('.field, .field-row, .formsec, .notice, .req-note, .submit').forEach(function (el) { el.style.display = 'none'; });
+        form.querySelectorAll('.field, .field-row, .formsec, .notice, .req-note, .submit, .creds, .why, .or').forEach(function (el) { el.style.display = 'none'; });
         // A volunteer submission is now an APPLICATION awaiting a human's yes,
         // not a place on a roster. Don't promise a seat we haven't given.
         status.textContent = form.dataset.form === 'volunteer'

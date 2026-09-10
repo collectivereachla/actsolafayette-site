@@ -261,6 +261,13 @@ module.exports = async (req, res) => {
     headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       personalizations: [{ to: [{ email: DESTINATION }] }],
+      // SendGrid's click tracking rewrote a volunteer's portfolio link into a
+      // 600-character u109832033.ct.sendgrid.net redirect in the notification
+      // email. These are internal notifications; nothing here needs tracking.
+      tracking_settings: {
+        click_tracking: { enable: false, enable_text: false },
+        open_tracking: { enable: false }
+      },
       from: FROM,
       reply_to: { email: replyTo },
       subject,
