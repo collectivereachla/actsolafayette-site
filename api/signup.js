@@ -25,6 +25,11 @@ const cap = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
 // that counts.
 const MAX_CATEGORIES = 3;
 const SOLO_CATEGORIES = ['Culinary Arts (33)', 'Hospitality Management (32)'];
+// A checkbox on the form, and not a competition. It belongs in the email, where
+// a chair reads it as the student saying they are still deciding. Relayed to
+// Calltime it would be matched against the category list, match nothing, and be
+// handed to the reviewer as a missing category that never existed.
+const UNDECIDED = 'Not sure yet';
 
 // The national application shows dates as "Dec 31, 2024"; the form posts an
 // ISO date. Print theirs, so a chair transcribing this retypes nothing.
@@ -351,8 +356,8 @@ const orNull = (v) => v || null;
 const isoDate = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(cap(v, 20)) ? cap(v, 20) : null);
 
 // The student form, nested the way intake wants it. The categories come in from
-// the caller — the same checked list the email printed, so the two records can
-// never disagree about what the student entered.
+// the caller: the same checked list the email printed, minus "Not sure yet",
+// which is an answer rather than an entry.
 function studentForCalltime(b, categories) {
   return {
     role: 'student',
@@ -387,7 +392,7 @@ function studentForCalltime(b, categories) {
       zip: orNull(cap(b.zip, 20)),
       country: orNull(cap(b.country, 80)),
     },
-    categories: Array.isArray(categories) ? categories : [],
+    categories: (Array.isArray(categories) ? categories : []).filter((c) => c !== UNDECIDED),
     music_detail: orNull(cap(b.music_detail, 200)),
     // A checkbox is only posted when it is checked. Anything but the consent
     // itself is no consent.
