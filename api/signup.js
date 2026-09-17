@@ -24,7 +24,7 @@ const cap = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
 // The browser checks this too, for a decent error message. This is the check
 // that counts.
 const MAX_CATEGORIES = 3;
-const SOLO_CATEGORIES = ['Culinary Arts (33)', 'Hospitality Management (32)'];
+const SOLO_CATEGORIES = ['Culinary Arts (32)', 'Hospitality Management (33)'];
 // A checkbox on the form, and not a competition. It belongs in the email, where
 // a chair reads it as the student saying they are still deciding. Relayed to
 // Calltime it would be matched against the category list, match nothing, and be
