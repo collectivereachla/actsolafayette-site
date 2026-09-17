@@ -1,7 +1,14 @@
 // ACT-SO Lafayette sign-up relay.
-// Emails each submission to the program team and stores nothing anywhere —
-// the email is the record, which keeps a minor's information out of
-// third-party databases entirely.
+// Emails each submission to the program team. That email is the record, and it
+// stays the record no matter what else happens below.
+//
+// Students used to stop there, and the reasoning was sound: storing nothing kept
+// a minor's information out of third-party databases entirely. Josiah reversed
+// that on 2026-09-16. The full student form now relays to Calltime as well, so a
+// student application lands in the room where it is actually read, seated and
+// tracked instead of living in one inbox. Calltime is ours, not a third party,
+// and it holds the categories and the guardian the program has to work from.
+// The email still sends first, and a Calltime failure never fails a submission.
 
 const DESTINATION = 'josiah@creativereach.art';
 // checkcalltime.art is the SendGrid-authenticated sending domain today.
@@ -136,6 +143,9 @@ module.exports = async (req, res) => {
   }
 
   let subject, lines, replyTo, attachments;
+  // Held outside the branch so the Calltime relay sends the same list the email
+  // printed, rather than re-deriving it and drifting.
+  let categories = null;
 
   if (b.form === 'student') {
     const first = cap(b.student_first, 80);
@@ -194,6 +204,7 @@ module.exports = async (req, res) => {
       `Referral consent: ${b.referral_consent === 'yes' ? 'YES: may share the student\'s performance with their school for a gifted and talented referral' : 'not given'}`,
     ];
     replyTo = email;
+    categories = cats.picked;
   } else if (b.form === 'volunteer') {
     const name = cap(b.name, 120);
     const email = cap(b.email, 200);
@@ -286,8 +297,8 @@ module.exports = async (req, res) => {
   // The email above is the record and has already succeeded. Calltime is an
   // ADDITION to it, never a replacement, so a Calltime outage must not turn a
   // good submission into an error for the person who filled in the form.
-  // Volunteers only: students stay out of Calltime by design (see header).
-  await relayToCalltime(b);
+  // Students and volunteers both, since 2026-09-16 (see header).
+  await relayToCalltime(b, categories);
 
   res.status(200).json({ ok: true });
 };
@@ -330,16 +341,99 @@ function credsNote(b) {
   return parts.join('\n\n').slice(0, 2000);
 }
 
-async function relayToCalltime(b) {
-  if (b.form !== 'volunteer') return;
+// Empty is absent, not an empty string: intake reads null as "the family left
+// this blank" and stores nothing for it.
+const orNull = (v) => v || null;
 
+// The form posts a date input, which is always ISO. Anything else reached us by
+// some other route, and Calltime splits this into birth year, month and day, so
+// a string it cannot split goes as null rather than as a date it will misread.
+const isoDate = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(cap(v, 20)) ? cap(v, 20) : null);
+
+// The student form, nested the way intake wants it. The categories come in from
+// the caller — the same checked list the email printed, so the two records can
+// never disagree about what the student entered.
+function studentForCalltime(b, categories) {
+  return {
+    role: 'student',
+    student: {
+      first: cap(b.student_first, 80),
+      last: cap(b.student_last, 80),
+      preferred: orNull(cap(b.student_preferred, 80)),
+      email: orNull(cap(b.student_email, 200)),
+      cell: orNull(cap(b.student_cell, 40)),
+      dob: isoDate(b.dob),
+      gender: orNull(cap(b.gender, 60)),
+      grade: cap(b.grade, 20),
+      returning: orNull(cap(b.returning, 10)),
+      naacp_member: orNull(cap(b.naacp_member, 10)),
+      college_plans: orNull(cap(b.college_plans, 10)),
+    },
+    guardian: {
+      name: cap(b.guardian_name, 120),
+      email: cap(b.guardian_email, 200),
+      phone: orNull(cap(b.guardian_phone, 40)),
+      home_phone: orNull(cap(b.home_phone, 40)),
+    },
+    school: {
+      name: cap(b.school, 160),
+      city: orNull(cap(b.school_city, 80)),
+      state: orNull(cap(b.school_state, 60)),
+    },
+    address: {
+      street: orNull(cap(b.street, 200)),
+      city: orNull(cap(b.city, 80)),
+      state: orNull(cap(b.state, 60)),
+      zip: orNull(cap(b.zip, 20)),
+      country: orNull(cap(b.country, 80)),
+    },
+    categories: Array.isArray(categories) ? categories : [],
+    music_detail: orNull(cap(b.music_detail, 200)),
+    // A checkbox is only posted when it is checked. Anything but the consent
+    // itself is no consent.
+    referral_consent: b.referral_consent === 'yes' ? 'yes' : null,
+    // Same fallback the email prints, so a chair reading either one sees the
+    // same unit.
+    unit: cap(b.unit, 80) || 'NAACP Lafayette Branch',
+    submission_year: orNull(cap(b.submission_year, 10)),
+  };
+}
+
+function volunteerForCalltime(b, role) {
+  return {
+    name: cap(b.name, 120),
+    email: cap(b.email, 200),
+    phone: cap(b.phone, 40),
+    role,
+    expertise: cap(b.expertise, 300),
+    // Calltime's review room is where a judge is actually accepted, so the
+    // credential travels with them: the link and the written background in
+    // the note, and the file itself as an attachment Calltime stores in a
+    // private bucket. A reviewer opening the application gets the proof
+    // without going hunting through an inbox for it.
+    note: credsNote(b),
+    resume: resumeForCalltime(b),
+  };
+}
+
+async function relayToCalltime(b, categories) {
   const url = process.env.CALLTIME_INTAKE_URL;
   const secret = process.env.CALLTIME_INTAKE_SECRET;
   if (!url || !secret) return; // not wired up yet — silently skip, email already sent
 
-  const role = INTAKE_ROLES[cap(b.role, 60)];
-  if (!role) {
-    console.error(`[signup] no Calltime role mapping for "${cap(b.role, 60)}" — emailed only`);
+  let payload, label;
+  if (b.form === 'student') {
+    payload = studentForCalltime(b, categories);
+    label = 'student';
+  } else if (b.form === 'volunteer') {
+    const role = INTAKE_ROLES[cap(b.role, 60)];
+    if (!role) {
+      console.error(`[signup] no Calltime role mapping for "${cap(b.role, 60)}" — emailed only`);
+      return;
+    }
+    payload = volunteerForCalltime(b, role);
+    label = role;
+  } else {
     return;
   }
 
@@ -347,26 +441,19 @@ async function relayToCalltime(b) {
     const r = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-intake-secret': secret },
-      body: JSON.stringify({
-        name: cap(b.name, 120),
-        email: cap(b.email, 200),
-        phone: cap(b.phone, 40),
-        role,
-        expertise: cap(b.expertise, 300),
-        // Calltime's review room is where a judge is actually accepted, so the
-        // credential travels with them: the link and the written background in
-        // the note, and the file itself as an attachment Calltime stores in a
-        // private bucket. A reviewer opening the application gets the proof
-        // without going hunting through an inbox for it.
-        note: credsNote(b),
-        resume: resumeForCalltime(b),
-      }),
+      body: JSON.stringify(payload),
     });
     if (!r.ok) {
-      const detail = await r.text().catch(() => '');
-      console.error(`[signup] Calltime intake refused a ${role}: ${r.status} ${detail.slice(0, 200)}`);
+      // A rejection body can quote the field it rejected, and on the student
+      // path that field is a child's. The status is enough to go look.
+      if (label === 'student') {
+        console.error(`[signup] Calltime intake refused a student: ${r.status}`);
+      } else {
+        const detail = await r.text().catch(() => '');
+        console.error(`[signup] Calltime intake refused a ${label}: ${r.status} ${detail.slice(0, 200)}`);
+      }
     }
   } catch (err) {
-    console.error(`[signup] Calltime intake unreachable for a ${role}: ${err.message}`);
+    console.error(`[signup] Calltime intake unreachable for a ${label}: ${err.message}`);
   }
 }
