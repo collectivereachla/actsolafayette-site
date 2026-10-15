@@ -360,6 +360,40 @@
         <p class="hint">From the NAACP&rsquo;s national student application: &ldquo;All NAACP ACT-SO Contestants must declare one unit to compete with during a single cycle. Students are not permitted to split their competitions across multiple units. Any contestant violating this policy will be disqualified and prevented from participating in the competition. To accept any cash prize winnings from ACT-SO, you will be required to complete and submit a W9 form for tax purposes.&rdquo;</p>
       </div>
 
+      <!-- The national application's second page, word for word. It needs three
+           signatures: the student, a parent or guardian, and the chair. The first
+           two are collected here so the chair can carry them onto the national
+           application without going back to the family. -->
+      <fieldset class="formsec" id="integrity">
+        <legend>ACT-SO Contestant Statement of Integrity</legend>
+        <p class="hint">The national application asks every student for this statement, signed by the student, a parent or guardian, and the ACT-SO Chairperson. Typing your full name below is your signature, and we enter it on the national application for you. The Chairperson signs there.</p>
+        <div class="notice integrity">
+          <p class="hint">Great care must be taken to ensure that the highest ethical standards are maintained by those engaging in research and report writing. To reinforce the importance of these standards, all written entries for the NAACP ACT-SO Competition must submit this statement as part of the entry. The statement must be signed by the ACT-SO contestant, parent/guardian, and the ACT-SO Chairperson. One statement must be submitted for each written contestant entry.</p>
+          <p class="hint">We understand the following requirements are set forth by NAACP ACT-SO for all competition entries containing a written component. These requirements are additional to the general guidelines and requirements published by ACT-SO. By signing this statement, I certify that all statements are true and accurate as they relate to this entry.</p>
+          <ul class="hint">
+            <li>The contents of this entry are the results of my solo work and not that of any group project.</li>
+            <li>I have never received an ACT-SO National Medal for any part of the written work submitted.</li>
+            <li>Credit for all secondary research has been given to the original author through the project's bibliography, footnotes, or endnotes, where applicable.</li>
+            <li>None of my work has been plagiarized from any source.</li>
+            <li>All activities or original research procedures described in this entry are accurate depictions of my efforts.</li>
+            <li>I understand that ACT-SO has the right to publish all or part of this entry. Should ACT-SO decide to publish the entire entry, I will receive a communication from ACT-SO informing me of my selection and procedures for participation.</li>
+          </ul>
+          <p class="hint">This statement of integrity must be signed by the contestant, parent/guardian, and the ACT-SO Chairperson and submitted with the entry; otherwise, the entry will receive 10 penalty points. If it is found that any of the statements are untrue, the submitted work will be disqualified from the competition.</p>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="s-soi-student">Student signature *</label>
+            <input id="s-soi-student" name="soi_student" type="text" autocomplete="off" required aria-describedby="s-soi-student-hint">
+            <p class="hint" id="s-soi-student-hint">The student types their full name.</p>
+          </div>
+          <div class="field">
+            <label for="s-soi-guardian">Parent / guardian signature *</label>
+            <input id="s-soi-guardian" name="soi_guardian" type="text" autocomplete="off" required aria-describedby="s-soi-guardian-hint">
+            <p class="hint" id="s-soi-guardian-hint">The parent or guardian types their full name.</p>
+          </div>
+        </div>
+      </fieldset>
+
       <fieldset class="field">
         <legend>Referral consent</legend>
         <div class="picks consent">
@@ -497,6 +531,8 @@
     returning: 'Returning competitor', naacp_member: 'NAACP member',
     college_plans: 'Planning to attend college',
     categories: 'Categories', music_detail: 'Instrument / voice',
+    soi_student: 'Statement of Integrity, student signature',
+    soi_guardian: 'Statement of Integrity, parent/guardian signature',
     referral_consent: 'Referral consent',
     name: 'Name', role: 'Serving as', email: 'Email', phone: 'Phone',
     expertise: 'Field / category', proof_link: 'Work can be seen at',

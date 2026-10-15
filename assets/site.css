@@ -388,6 +388,12 @@ form { max-width: 40rem; }
 /* The unit-declaration and W9 language, quoted from the national application. */
 .notice { margin-top: 2rem; padding: 1.1rem 1.2rem; border-left: 2px solid var(--gold); background: #131313; }
 .notice .hint { font-size: 0.83rem; color: #8d8578; line-height: 1.6; margin: 0; }
+/* The Statement of Integrity runs several paragraphs and a list, so it needs air
+   between parts that the one-paragraph unit notice never did. */
+.notice.integrity { margin-top: 1.1rem; }
+.notice.integrity .hint + .hint, .notice.integrity ul.hint, .notice.integrity ul.hint + .hint { margin-top: 0.75rem; }
+.notice.integrity ul.hint { padding-left: 1.1rem; }
+.notice.integrity li + li { margin-top: 0.35rem; }
 
 .hp { position: absolute; left: -9999px; height: 0; overflow: hidden; }
 

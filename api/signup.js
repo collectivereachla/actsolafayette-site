@@ -160,10 +160,20 @@ module.exports = async (req, res) => {
     const email = cap(b.guardian_email, 200);
     const school = cap(b.school, 160);
     const grade = cap(b.grade, 20);
-    if (!first || !last || !guardian || !email || !grade || !school) {
+    // The national application's Statement of Integrity needs the student's and
+    // a parent's signature; the chair carries both onto it. Without them the
+    // chair has to go back to the family, which is what this form exists to avoid.
+    const soiStudent = cap(b.soi_student, 120);
+    const soiGuardian = cap(b.soi_guardian, 120);
+    if (!first || !last || !guardian || !email || !grade || !school || !soiStudent || !soiGuardian) {
       res.status(400).json({ ok: false, error: 'Missing required fields' });
       return;
     }
+    // When they signed, in Lafayette's time, so the chair can say when the
+    // statement was signed if National asks.
+    const signedAt = new Date().toLocaleString('en-US', {
+      timeZone: 'America/Chicago', dateStyle: 'medium', timeStyle: 'short',
+    });
 
     const cats = checkCategories(b.categories);
     if (cats.error) {
@@ -205,6 +215,11 @@ module.exports = async (req, res) => {
       ``,
       `Categories (max 3): ${cats.picked.join(', ') || '—'}`,
       `Instrument / voice: ${or(cap(b.music_detail, 200))}`,
+      ``,
+      `Statement of Integrity: signed ${signedAt} (Central)`,
+      `  Contestant's signature: ${soiStudent}`,
+      `  Parent/Guardian's signature: ${soiGuardian}`,
+      `  ACT-SO Chairperson's signature: signs on the national application`,
       ``,
       `Referral consent: ${b.referral_consent === 'yes' ? 'YES: may share the student\'s performance with their school for a gifted and talented referral' : 'not given'}`,
     ];
